@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -208,7 +209,9 @@ public class GamepadReal implements Gamepad {
 		}
 		return false;
 	}
-
+	
+	String temp;
+	ArrayList<Object> commandChain = new ArrayList();
 	// Updates the array for the gamepad:
 	public void update() {
 		for (byte i = 1; i < 11; i++) {
@@ -240,6 +243,31 @@ public class GamepadReal implements Gamepad {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+		
+		//Arraylist
+		temp = Robot.getInstance().modeTime() + " " + getPOV() + " ";
+		for(byte i = 0; i < 11; i++)
+		{
+			temp += getNumberedButton(i) + " ";
+		}
+		for(byte j = 0; j < 6; j++)
+		{
+			temp += getRawAxis(j) + " ";
+		}
+		temp = temp.substring(0, temp.length()-2);
+		temp += "\n";
+		
+		commandChain.add(temp);
+		//end of string and arraylist
+		
+		
+		if(writer != null && Robot.getInstance().modeTime() >= 15000)
+		{
+			try {
+			writer.write(temp);
+			}
+			catch(Exception e) {e.printStackTrace();}
 		}
 	}
 }
