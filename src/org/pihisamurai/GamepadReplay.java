@@ -2,6 +2,7 @@ package org.pihisamurai;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -39,7 +40,7 @@ public class GamepadReplay implements Gamepad {
 	
 	private long nextTime;
 	private String[] nextData = null;
-	
+	boolean addedCommand = false;
 	//File format, saved periodicly, each save seperated by newline
 	//miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
 	
@@ -57,32 +58,77 @@ public class GamepadReplay implements Gamepad {
 		
 		readFile();
 	}
+	ArrayList<String> commandChain = new ArrayList<String>();
+	int pos = 0;
+	int temp = 1;
+	private void readFile()
+	{
+		while(!addedCommand)
+		{
+			commandChain.add(scanner.next());
+			addedCommand = true;
+		}
+		
+		if(Robot.getInstance().modeTime() >= nextTime - 1){
+			try {
+			nextTime = Long.parseLong((String)commandChain.get(pos++));
+			currentPOV = Integer.parseInt((String)commandChain.get(pos++));
+			currentPress = new boolean[11];
+			temp = 1;
+			while(temp < 11)
+			{
+				currentPress[temp] = Boolean.parseBoolean((String)commandChain.get(pos));
+				pos++;
+				temp++;
+			}
+			temp = 1;
+			currentStick = new double[6];
+			while(temp < 6)
+			{
+				currentStick[temp] = Double.parseDouble((String)commandChain.get(pos));
+				pos++;
+				temp++;
+			}
+			
+			
+			System.out.println(currentPOV + " && " + Arrays.toString(currentPress) + " && " + Arrays.toString(currentStick) );;
+			
+			}
+			catch(Exception ex) {ex.printStackTrace();}
+			//nextData = scanner.nextLine().split("\\s+");
+			
+			readFile();
+		}
+	}
+		
 	
+	/**
 	private void readFile(){
 		if(nextData == null){
 			//nextData = scanner.nextLine().split("\\s+");
 			nextTime = -1;
 		}
-		nextTime = Long.parseLong(scanner.next());
+		
 		if(Robot.getInstance().modeTime() >= nextTime && scanner.hasNext()){
+			nextTime = Long.parseLong(scanner.next());
 			currentPOV = Integer.parseInt(scanner.next());
 			currentPress = new boolean[11];
 			for(int i = 1; i < 11; i++)
 				currentPress[i] = Boolean.parseBoolean(scanner.next());
 			currentStick = new double[6];
-			for(int i = 0; i < 6; i++)
+			for(int i = 1; i < 6; i++)
 				currentStick[i] = Double.parseDouble(scanner.next());
 			
 			
 			System.out.println(currentPOV + " && " + Arrays.toString(currentPress) + " && " + Arrays.toString(currentStick) );;
 			
 			
-			nextData = scanner.nextLine().split("\\s+");
+			//nextData = scanner.nextLine().split("\\s+");
 			
 			readFile();
 		}
 	}
-	
+	*/
 	public int getPOV() {
 		readFile();
 		return currentPOV;

@@ -251,16 +251,16 @@ public class GamepadReal implements Gamepad {
 		{
 			//Arraylist
 			temp = Robot.getInstance().modeTime() + " " + getPOV() + " ";
-			for(byte i = 0; i < 11; i++)
+			for(byte i = 1; i < 11; i++)
 			{
 				temp += getNumberedButton(i) + " ";
 			}
-			for(byte j = 0; j < 6; j++)
+			for(byte j = 1; j < 6; j++)
 			{
 				temp += getRawAxis(j) + " ";
 			}
 			temp = temp.substring(0, temp.length()-2);
-			temp += "\n";
+			//temp += "\n";
 			
 			commandChain.add(temp);
 			//end of string and arraylist
