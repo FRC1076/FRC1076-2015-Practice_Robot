@@ -60,25 +60,25 @@ public class GamepadReplay implements Gamepad {
 	
 	private void readFile(){
 		if(nextData == null){
-			nextData = scanner.nextLine().split("\\s+");
+			//nextData = scanner.nextLine().split("\\s+");
 			nextTime = -1;
 		}
-		
+		nextTime = Long.parseLong(scanner.next());
 		if(Robot.getInstance().modeTime() >= nextTime && scanner.hasNext()){
-			currentPOV = Integer.parseInt(nextData[1]);
+			currentPOV = Integer.parseInt(scanner.next());
 			currentPress = new boolean[11];
 			for(int i = 1; i < 11; i++)
-				currentPress[i] = Boolean.parseBoolean(nextData[i+1]);
+				currentPress[i] = Boolean.parseBoolean(scanner.next());
 			currentStick = new double[6];
 			for(int i = 0; i < 6; i++)
-				currentStick[i] = Double.parseDouble(nextData[i+12]);
+				currentStick[i] = Double.parseDouble(scanner.next());
 			
 			
 			System.out.println(currentPOV + " && " + Arrays.toString(currentPress) + " && " + Arrays.toString(currentStick) );;
 			
 			
 			nextData = scanner.nextLine().split("\\s+");
-			nextTime = Long.parseLong(nextData[0]);
+			
 			readFile();
 		}
 	}

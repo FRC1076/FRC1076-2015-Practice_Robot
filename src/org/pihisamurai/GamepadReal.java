@@ -218,7 +218,7 @@ public class GamepadReal implements Gamepad {
 			lastPress[i] = getNumberedButton(i);
 		}
 		lastPOV = this.getPOV();
-		
+		/**
 		if(writer != null && Robot.getInstance().modeTime() > 15000) {
 			try {
 				
@@ -229,7 +229,8 @@ public class GamepadReal implements Gamepad {
 			}
 			writer = null;
 		}
-		
+		*/
+		/**
 		if(writer != null){
 		    try {
 				writer.write(Robot.getInstance().modeTime() + "");
@@ -244,30 +245,40 @@ public class GamepadReal implements Gamepad {
 				e.printStackTrace();
 			}
 		}
+		*/
 		
-		//Arraylist
-		temp = Robot.getInstance().modeTime() + " " + getPOV() + " ";
-		for(byte i = 0; i < 11; i++)
+		if(writer!=null)
 		{
-			temp += getNumberedButton(i) + " ";
+			//Arraylist
+			temp = Robot.getInstance().modeTime() + " " + getPOV() + " ";
+			for(byte i = 0; i < 11; i++)
+			{
+				temp += getNumberedButton(i) + " ";
+			}
+			for(byte j = 0; j < 6; j++)
+			{
+				temp += getRawAxis(j) + " ";
+			}
+			temp = temp.substring(0, temp.length()-2);
+			temp += "\n";
+			
+			commandChain.add(temp);
+			//end of string and arraylist
 		}
-		for(byte j = 0; j < 6; j++)
-		{
-			temp += getRawAxis(j) + " ";
-		}
-		temp = temp.substring(0, temp.length()-2);
-		temp += "\n";
-		
-		commandChain.add(temp);
-		//end of string and arraylist
-		
 		
 		if(writer != null && Robot.getInstance().modeTime() >= 15000)
 		{
-			try {
-			writer.write(temp);
+			try 
+			{
+			for(int i = 0; i <= commandChain.size(); i++)
+			{
+				writer.write((String) commandChain.get(i));
+			}
+			writer.close();
 			}
 			catch(Exception e) {e.printStackTrace();}
+			writer = null;
 		}
+		
 	}
 }
