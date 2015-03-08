@@ -1,9 +1,12 @@
 package org.pihisamurai;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class GamepadReplay implements Gamepad {
@@ -32,57 +35,42 @@ public class GamepadReplay implements Gamepad {
 	private static final byte AXIS_RIGHT_X = 4;
 	private static final byte AXIS_RIGHT_Y = 5;
 
-	private Scanner scanner;
-	private ArrayList<String[]> controlList = new ArrayList<String[]>();
-	private int pointer = 0;
+	private LinkedList<Object[]> data = new LinkedList<Object[]>();
 
+	
 	// File format, saved periodicly, each save seperated by newline
 	// miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
 
 	GamepadReplay(String fileName) {
-		// checking for file
-		try {
-			scanner = new Scanner(new File(System.getProperty("user.home") + "/" + fileName));
-		} catch (FileNotFoundException e) {
+		
+		try{
+	    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(System.getProperty("user.home") + "/" + fileName));
+	    data = (LinkedList) ois.readObject();
+	    ois.close();
+		} catch(Exception e){
 			e.printStackTrace();
 		}
-
-		lastPress = new boolean[11];
-		for (byte i = 0; i < 11; i++) {
-			lastPress[i] = false;
-		}
+	    
+		lastPress = new boolean[]{false,false,false,false,false,false,false,false,false,false,false,false};
 		lastPOV = -1;
-
-		controlList = readFile();
 	}
 
-	private ArrayList<String[]> readFile() {
-		ArrayList<String[]> data = new ArrayList<String[]>();
-		while (scanner.hasNextLine()) {
-			data.add(scanner.nextLine().split("\\s+"));
-		}
-		return data;
-	}
-
-	private String[] getCurrentData() {
-		if (Long.parseLong(controlList.get(pointer + 1)[0]) <= Robot.getInstance().modeTime()) {
-			return controlList.get(pointer++);
-		}
-		return controlList.get(pointer);
+	private Object[] getCurrentData() {
+		if ((Double)data.get(1)[0] <= Robot.getInstance().modeTime())
+			data.remove();
+		return data.getFirst();
 	}
 
 	public int getPOV() {
-		return Integer.parseInt(getCurrentData()[1]);
+		return (Integer)(getCurrentData()[1]);
 	}
 
 	private double getRawAxis(int axis) {
-		assert(axis >= 0 && axis <= 5);
-		return Double.parseDouble(getCurrentData()[axis + 12]);
+		return (Double)(getCurrentData()[axis + 12]);
 	}
 
 	private boolean getNumberedButton(byte button) {
-		assert(button >= 1 && button <= 10);
-		return Boolean.parseBoolean(getCurrentData()[button + 1]);
+		return (Boolean)(getCurrentData()[button + 1]);
 	}
 
 	public double getLeftX() {

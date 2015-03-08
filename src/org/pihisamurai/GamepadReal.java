@@ -3,12 +3,16 @@ package org.pihisamurai;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -41,14 +45,11 @@ public class GamepadReal implements Gamepad {
 	private boolean[] lastPress;
 	private int lastPOV;
 
-	// Writes to a file
-	private Writer writer = null;
+	private String filePath;
 
-	// Temporarily stores gamepad inputs until it gets added to cmdChain
-	private String stringCode;
 	// An array-list of all gamepad inputs over time
-	private ArrayList<String> cmdChain = new ArrayList<String>();
-	
+	private LinkedList<Object[]> data = new LinkedList<Object[]>();
+
 	GamepadReal(int port) {
 		// Initialization of variable values:
 		this.port = port;
@@ -62,13 +63,7 @@ public class GamepadReal implements Gamepad {
 
 	GamepadReal(int port, String save) {
 		this(port);
-		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream( System.getProperty("user.home") + "/" +  save), "utf-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		filePath = System.getProperty("user.home") + "/" + save;
 	}
 
 	public int getPOV() {
@@ -99,13 +94,11 @@ public class GamepadReal implements Gamepad {
 		return getRawAxis(AXIS_LEFT_TRIGGER);
 	}
 
-	private double getRawAxis(int axis) {
+	private double getRawAxis(byte axis) {
 		return driverStation.getStickAxis(port, axis);
 	}
 
 	private boolean getNumberedButton(byte button) {
-		assert(button!=0);
-		
 		return driverStation.getStickButton(port, button);
 	}
 
@@ -190,7 +183,7 @@ public class GamepadReal implements Gamepad {
 	public boolean ifPOVChange() {
 		return this.getPOV() != lastPOV;
 	}
-	
+
 	// Updates the array for the gamepad:
 	public void update() {
 		for (byte i = 1; i < 11; i++) {
@@ -198,28 +191,34 @@ public class GamepadReal implements Gamepad {
 		}
 		lastPOV = this.getPOV();
 
-		if (writer != null) {
-			stringCode = Robot.getInstance().modeTime() + " " + getPOV();
-			for (byte i = 0; i <= 10; i++) {
-				stringCode += " " + getNumberedButton(i);
-			}
-			for (byte i = 0; i <= 5; i++) {
-				stringCode += " " + getRawAxis(i);
-			}
+		if (data != null)
+			data.add(new Object[] { Robot.getInstance().modeTime(), getPOV(), getNumberedButton((byte) 1),
+					getNumberedButton((byte) 2), getNumberedButton((byte) 3), getNumberedButton((byte) 4),
+					getNumberedButton((byte) 5), getNumberedButton((byte) 6), getNumberedButton((byte) 7),
+					getNumberedButton((byte) 8), getNumberedButton((byte) 9), getNumberedButton((byte) 10),
+					getNumberedButton((byte) 10), getRawAxis((byte) 0), getRawAxis((byte) 1), getRawAxis((byte) 2),
+					getRawAxis((byte) 3), getRawAxis((byte) 4), getRawAxis((byte) 5), getRawAxis((byte) 6) });
 
-			cmdChain.add(stringCode + "\n");
-		}
-
-		if (writer != null && Robot.getInstance().modeTime() >= 16000) {
+		if (data != null && Robot.getInstance().modeTime() >= 16000) {
+			Serializable writeObj = data;
+			data = null;
 			try {
-				for (int i = 0; i < cmdChain.size(); i++) {
-					writer.write(cmdChain.get(i));
-				}
-				writer.close();
+				(new Thread(new Runnable() {
+					public void run() {
+						try {
+							ObjectOutputStream oos;
+							oos = new ObjectOutputStream(new FileOutputStream(filePath));
+							oos.writeObject(writeObj);
+							oos.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				})).start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			writer = null;
+
 		}
 	}
 }
