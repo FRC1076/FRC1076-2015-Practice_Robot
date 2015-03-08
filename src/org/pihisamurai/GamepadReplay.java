@@ -37,40 +37,42 @@ public class GamepadReplay implements Gamepad {
 
 	private LinkedList<Object[]> data = new LinkedList<Object[]>();
 
-	
 	// File format, saved periodicly, each save seperated by newline
 	// miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
 
 	GamepadReplay(String fileName) {
-		
-		try{
-	    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(System.getProperty("user.home") + "/" + fileName));
-	    data = (LinkedList) ois.readObject();
-	    ois.close();
-		} catch(Exception e){
+
+		try {
+			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(System.getProperty("user.home") + "/"
+					+ fileName));
+			data = (LinkedList) ois.readObject();
+			ois.close();
+			data.addLast(new Object[] { Double.MAX_VALUE, -1, false, false, false, false, false, false, false, false,
+					false, false, false, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	    
-		lastPress = new boolean[]{false,false,false,false,false,false,false,false,false,false,false,false};
+
+		lastPress = new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false };
 		lastPOV = -1;
 	}
 
 	private Object[] getCurrentData() {
-		if ((Double)data.get(1)[0] <= Robot.getInstance().modeTime())
+		if ((Double) data.get(1)[0] <= Robot.getInstance().modeTime())
 			data.remove();
 		return data.getFirst();
 	}
 
 	public int getPOV() {
-		return (Integer)(getCurrentData()[1]);
+		return (Integer) (getCurrentData()[1]);
 	}
 
 	private double getRawAxis(int axis) {
-		return (Double)(getCurrentData()[axis + 12]);
+		return (Double) (getCurrentData()[axis + 12]);
 	}
 
 	private boolean getNumberedButton(byte button) {
-		return (Boolean)(getCurrentData()[button + 1]);
+		return (Boolean) (getCurrentData()[button + 1]);
 	}
 
 	public double getLeftX() {
