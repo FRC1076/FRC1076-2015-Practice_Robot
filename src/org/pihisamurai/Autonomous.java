@@ -9,7 +9,7 @@ public class Autonomous {
 	AutonomousTotes autonomousTotes;
 
 	public Autonomous(Robot r) {
-		this.robot = r;
+		robot = r;
 		autnomousForward = new AutonomousForward(r);
 		autonomousNothing = new AutonomousNothing(r);
 		autonomousTotes = new AutonomousTotes(r);

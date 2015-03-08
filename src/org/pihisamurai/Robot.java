@@ -16,87 +16,86 @@ public class Robot extends IterativeRobot {
 	public Test test;
 	public Autonomous autonomous;
 	public Disabled disabled;
-	
 
 	private static Robot robot;
 	public Gamepad gamepad;
 	public Gamepad gamepad2;
-	
-    CameraServer server;
 
-  //  int session;
-  //  Image frame;
-    
+	CameraServer server;
+
+	// int session;
+	// Image frame;
+
 	private long modeStart;
-	
-	//Returns time since mode was enabled
-	public long modeTime(){
+
+	// Returns time since mode was enabled
+	public long modeTime() {
 		return (System.nanoTime() - modeStart) / 1000000;
 	}
 
-	
 	public void robotInit() {
-		
+
 		SmartDashboard.putString("Gamepad Read File", "file");
 		robot = this;
 		System.out.println("Robot Code Started");
 
-
-
 		SmartDashboard.putNumber("Autonomous Mode", 0);
 
-    //    frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+		/*
+		 * frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+		 * 
+		 * // the camera name (ex "cam0") can be found through the roborio web interface
+		 * session = NIVision.IMAQdxOpenCamera("cam0",
+		 * NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		 * NIVision.IMAQdxConfigureGrab(session);
+		 */
 
-        // the camera name (ex "cam0") can be found through the roborio web interface
-    //    session = NIVision.IMAQdxOpenCamera("cam0",
-   //             NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-    //    NIVision.IMAQdxConfigureGrab(session);
-        
 		drivetrain = new Drivetrain(this);
 		manipulator = new Manipulator(this);
 		teleop = new Teleoperated(this);
 		test = new Test(this);
 		autonomous = new Autonomous(this);
 		disabled = new Disabled(this);
-		
-	//	camGet.start();
-	}
-	
-	/*Thread camGet = new Thread(new Runnable(){
-		public void run() {
-	        NIVision.IMAQdxStartAcquisition(session);
-			while(true){
-		        NIVision.IMAQdxGrab(session, frame, 1);
-		        CameraServer.getInstance().setImage(frame);
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-	        //NIVision.IMAQdxStopAcquisition(session);
-		}
-	});*/
 
-	// The initial function called on start of disabled mode 
+		// camGet.start();
+	}
+
+	/*
+	 * Thread camGet = new Thread(new Runnable(){
+	 * public void run() {
+	 * NIVision.IMAQdxStartAcquisition(session);
+	 * while(true){
+	 * NIVision.IMAQdxGrab(session, frame, 1);
+	 * CameraServer.getInstance().setImage(frame);
+	 * try {
+	 * Thread.sleep(200);
+	 * } catch (InterruptedException e) {
+	 * e.printStackTrace();
+	 * }
+	 * }
+	 * //NIVision.IMAQdxStopAcquisition(session);
+	 * }
+	 * });
+	 */
+
+	// The initial function called on start of disabled mode
 
 	public void disabledInit() {
 		System.out.println("Robot Disabled");
 		disabled.init();
 	}
 
-	// The function called roughly every twenty milliseconds during disabled mode 
+	// The function called roughly every twenty milliseconds during disabled mode
 
 	public void disabledPeriodic() {
 		disabled.run();
 	}
-	
 
 	public static Robot getInstance() {
 		return robot;
 	}
 
-	// The initial function called on start of autonomous mode 
+	// The initial function called on start of autonomous mode
 
 	public void autonomousInit() {
 		System.out.println("Autonomous Mode");
@@ -104,18 +103,17 @@ public class Robot extends IterativeRobot {
 		modeStart = System.nanoTime();
 		gamepad = new GamepadReplay(SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
 		gamepad2 = new GamepadReplay(SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
-		
+
 	}
 
-	// The function called roughly every twenty milliseconds during disabled mode 
+	// The function called roughly every twenty milliseconds during disabled mode
 
 	public void autonomousPeriodic() {
 		teleop.run();
-		
 
 		gamepad.update();
 		gamepad2.update();
-		
+
 	}
 
 	// The initial function called on start of teleop
@@ -125,22 +123,20 @@ public class Robot extends IterativeRobot {
 
 		gamepad = new GamepadReal(0, SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
 		gamepad2 = new GamepadReal(1, SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
-		
-		
+
 		System.out.println("Teleoperated Mode");
 		teleop.init();
 	}
 
-	// The function called roughly every twenty milliseconds during teleop 
+	// The function called roughly every twenty milliseconds during teleop
 
 	public void teleopPeriodic() {
 		teleop.run();
-		
 
 		gamepad.update();
 		gamepad2.update();
-		
-		//drivetrain.update();
+
+		// drivetrain.update();
 	}
 
 	public void testInit() {
