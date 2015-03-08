@@ -36,24 +36,22 @@ public class GamepadReal implements Gamepad {
 	private boolean[] lastPress;
 	private int lastPOV;
 
-	private String filePath;
+	private String filePath = null;
 
 	// An array-list of all gamepad inputs over time
-	private LinkedList<Object[]> data = new LinkedList<Object[]>();
+	private LinkedList<Object[]> data;
 
 	GamepadReal(int port) {
 		// Initialization of variable values:
 		this.port = port;
 		driverStation = DriverStation.getInstance();
-		lastPress = new boolean[11];
-		for (byte i = 1; i < 11; i++) {
-			lastPress[i] = false;
-		}
+		lastPress = new boolean[] { false, false, false, false, false, false, false, false, false, false, false, false };
 		lastPOV = -1;
 	}
 
 	GamepadReal(int port, String save) {
 		this(port);
+		data = new LinkedList<Object[]>();
 		filePath = System.getProperty("user.home") + "/" + save;
 	}
 
@@ -190,7 +188,7 @@ public class GamepadReal implements Gamepad {
 					getNumberedButton((byte) 10), getRawAxis((byte) 0), getRawAxis((byte) 1), getRawAxis((byte) 2),
 					getRawAxis((byte) 3), getRawAxis((byte) 4), getRawAxis((byte) 5), getRawAxis((byte) 6) });
 
-		if (data != null && Robot.getInstance().modeTime() >= 15200) {
+		if (filePath != null && data != null && Robot.getInstance().modeTime() >= 15200) {
 			Serializable writeObj = data;
 			data = null;
 			try {
