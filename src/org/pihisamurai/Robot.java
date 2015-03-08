@@ -13,7 +13,7 @@ public class Robot extends IterativeRobot {
 	public Manipulator manipulator;
 
 	public Teleoperated teleop;
-	
+
 	private static Robot robot;
 	public Gamepad gamepad;
 	public Gamepad gamepad2;
@@ -111,13 +111,35 @@ public class Robot extends IterativeRobot {
 	// The initial function called on start of teleop
 
 	public void teleopInit() {
+		System.out.println("Teleoperated Mode");
+
+		modeStart = System.nanoTime();
+
+		gamepad = new GamepadReal(0);
+		gamepad2 = new GamepadReal(1);
+
+		teleop.init();
+	}
+
+	public void testInit() {
+		System.out.println("Test Mode");
+
 		modeStart = System.nanoTime();
 
 		gamepad = new GamepadReal(0, SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
 		gamepad2 = new GamepadReal(1, SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
 
-		System.out.println("Teleoperated Mode");
 		teleop.init();
+	}
+
+	public void testPeriodic() {
+		teleop.run();
+
+		gamepad.update();
+		gamepad2.update();
+
+		// drivetrain.update();
+
 	}
 
 	// The function called roughly every twenty milliseconds during teleop
@@ -129,12 +151,5 @@ public class Robot extends IterativeRobot {
 		gamepad2.update();
 
 		// drivetrain.update();
-	}
-
-	public void testInit() {
-		System.out.println("Test Mode");
-	}
-
-	public void testPeriodic() {
 	}
 }
