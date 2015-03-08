@@ -1,18 +1,9 @@
 package org.pihisamurai;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Queue;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -199,7 +190,7 @@ public class GamepadReal implements Gamepad {
 					getNumberedButton((byte) 10), getRawAxis((byte) 0), getRawAxis((byte) 1), getRawAxis((byte) 2),
 					getRawAxis((byte) 3), getRawAxis((byte) 4), getRawAxis((byte) 5), getRawAxis((byte) 6) });
 
-		if (data != null && Robot.getInstance().modeTime() >= 16000) {
+		if (data != null && Robot.getInstance().modeTime() >= 15200) {
 			Serializable writeObj = data;
 			data = null;
 			try {
