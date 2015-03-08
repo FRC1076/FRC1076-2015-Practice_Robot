@@ -13,8 +13,6 @@ public class Robot extends IterativeRobot {
 	public Manipulator manipulator;
 
 	public Teleoperated teleop;
-	public Test test;
-	public Autonomous autonomous;
 	
 	private static Robot robot;
 	public Gamepad gamepad;
@@ -52,8 +50,6 @@ public class Robot extends IterativeRobot {
 		drivetrain = new Drivetrain(this);
 		manipulator = new Manipulator(this);
 		teleop = new Teleoperated(this);
-		test = new Test(this);
-		autonomous = new Autonomous(this);
 
 		// camGet.start();
 	}
@@ -137,10 +133,8 @@ public class Robot extends IterativeRobot {
 
 	public void testInit() {
 		System.out.println("Test Mode");
-		test.init();
 	}
 
 	public void testPeriodic() {
-		test.run();
 	}
 }
