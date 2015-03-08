@@ -58,19 +58,8 @@ public class GamepadReplay implements Gamepad {
 
 	private ArrayList<String[]> readFile() {
 		ArrayList<String[]> data = new ArrayList<String[]>();
-		while (scanner.hasNext()) {
-			String[] temp = new String[18];
-			temp[0] = scanner.next();
-			temp[1] = scanner.next();
-			for (int i = 1; i < 11; i++) {
-				temp[i + 1] = scanner.next();
-			}
-			for (int i = 0; i < 6; i++) {
-				temp[i + 12] = scanner.next();
-			}
-
-			System.out.println(temp.toString());
-			data.add(temp);
+		while (scanner.hasNextLine()) {
+			data.add(scanner.nextLine().split("\\s+"));
 		}
 		return data;
 	}
@@ -87,11 +76,13 @@ public class GamepadReplay implements Gamepad {
 	}
 
 	private double getRawAxis(int axis) {
+		assert(axis >= 0 && axis <= 5);
 		return Double.parseDouble(getCurrentData()[axis + 12]);
 	}
 
 	private boolean getNumberedButton(byte button) {
-		return Boolean.parseBoolean(getCurrentData()[button + 2]);
+		assert(button >= 1 && button <= 10);
+		return Boolean.parseBoolean(getCurrentData()[button + 1]);
 	}
 
 	public double getLeftX() {

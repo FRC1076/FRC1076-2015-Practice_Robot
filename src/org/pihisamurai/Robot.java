@@ -15,8 +15,7 @@ public class Robot extends IterativeRobot {
 	public Teleoperated teleop;
 	public Test test;
 	public Autonomous autonomous;
-	public Disabled disabled;
-
+	
 	private static Robot robot;
 	public Gamepad gamepad;
 	public Gamepad gamepad2;
@@ -55,7 +54,6 @@ public class Robot extends IterativeRobot {
 		teleop = new Teleoperated(this);
 		test = new Test(this);
 		autonomous = new Autonomous(this);
-		disabled = new Disabled(this);
 
 		// camGet.start();
 	}
@@ -82,13 +80,11 @@ public class Robot extends IterativeRobot {
 
 	public void disabledInit() {
 		System.out.println("Robot Disabled");
-		disabled.init();
 	}
 
 	// The function called roughly every twenty milliseconds during disabled mode
 
 	public void disabledPeriodic() {
-		disabled.run();
 	}
 
 	public static Robot getInstance() {

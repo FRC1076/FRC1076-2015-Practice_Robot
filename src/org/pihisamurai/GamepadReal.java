@@ -54,7 +54,7 @@ public class GamepadReal implements Gamepad {
 		this.port = port;
 		driverStation = DriverStation.getInstance();
 		lastPress = new boolean[11];
-		for (byte i = 0; i < 11; i++) {
+		for (byte i = 1; i < 11; i++) {
 			lastPress[i] = false;
 		}
 		lastPOV = -1;
@@ -104,6 +104,8 @@ public class GamepadReal implements Gamepad {
 	}
 
 	private boolean getNumberedButton(byte button) {
+		assert(button!=0);
+		
 		return driverStation.getStickButton(port, button);
 	}
 
@@ -198,17 +200,17 @@ public class GamepadReal implements Gamepad {
 
 		if (writer != null) {
 			stringCode = Robot.getInstance().modeTime() + " " + getPOV();
-			for (byte i = 0; i < 11; i++) {
+			for (byte i = 0; i <= 10; i++) {
 				stringCode += " " + getNumberedButton(i);
 			}
-			for (byte j = 0; j < 6; j++) {
-				stringCode += " " + getRawAxis(j);
+			for (byte i = 0; i <= 5; i++) {
+				stringCode += " " + getRawAxis(i);
 			}
 
 			cmdChain.add(stringCode + "\n");
 		}
 
-		if (writer != null && Robot.getInstance().modeTime() >= 15000) {
+		if (writer != null && Robot.getInstance().modeTime() >= 16000) {
 			try {
 				for (int i = 0; i < cmdChain.size(); i++) {
 					writer.write(cmdChain.get(i));
