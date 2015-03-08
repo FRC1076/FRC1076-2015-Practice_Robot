@@ -35,6 +35,8 @@ public class GamepadReplay implements Gamepad {
 	// File format, saved periodicly, each save seperated by newline
 	// miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
 
+	private double nextTime;
+	
 	GamepadReplay(String fileName) {
 
 		try {
@@ -44,6 +46,9 @@ public class GamepadReplay implements Gamepad {
 			ois.close();
 			data.addLast(new Object[] { Double.MAX_VALUE, -1, false, false, false, false, false, false, false, false,
 					false, false, false, false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 });
+
+			nextTime = ((Double)data.getFirst()[0] + (Double)data.get(1)[0])/2.0;
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,8 +58,8 @@ public class GamepadReplay implements Gamepad {
 	}
 
 	private Object[] getCurrentData() {
-		if ((Double) data.get(1)[0] <= Robot.getInstance().modeTime())
-			data.remove();
+		if (nextTime <= Robot.getInstance().modeTime())
+			nextTime = ((Double)data.remove()[0] + (Double)data.getFirst()[0])/2.0;
 		return data.getFirst();
 	}
 
