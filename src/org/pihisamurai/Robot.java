@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
 
-	public Drivetrain drivetrain;
+	public Drivetrain drivetrain = null;
 	public Manipulator manipulator;
 
 	public Teleoperated teleop;
@@ -47,7 +47,6 @@ public class Robot extends IterativeRobot {
 		 * NIVision.IMAQdxConfigureGrab(session);
 		 */
 
-		drivetrain = new Drivetrain(this);
 		manipulator = new Manipulator(this);
 		teleop = new Teleoperated(this);
 
@@ -92,6 +91,9 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		System.out.println("Autonomous Mode");
 
+		if(drivetrain != null)
+			drivetrain.disable();	
+		drivetrain = new DrivetrainAuto();
 		modeStart = System.nanoTime();
 		gamepad = new GamepadReplay(SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
 		gamepad2 = new GamepadReplay(SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
@@ -114,6 +116,9 @@ public class Robot extends IterativeRobot {
 	public void teleopInit() {
 		System.out.println("Teleoperated Mode");
 
+		if(drivetrain != null)
+			drivetrain.disable();	
+		drivetrain = new DrivetrainTeleop();
 		modeStart = System.nanoTime();
 
 		gamepad = new GamepadReal(0);
@@ -124,6 +129,10 @@ public class Robot extends IterativeRobot {
 
 	public void testInit() {
 		System.out.println("Test Mode");
+		
+		if(drivetrain != null)
+			drivetrain.disable();	
+		drivetrain = new DrivetrainAuto();
 
 		modeStart = System.nanoTime();
 
