@@ -180,14 +180,18 @@ public class GamepadReal implements Gamepad {
 		}
 		lastPOV = this.getPOV();
 
-		if (data != null)
-			data.add(new Object[] { Robot.getInstance().modeTime(), getPOV(), getNumberedButton((byte) 1),
-					getNumberedButton((byte) 2), getNumberedButton((byte) 3), getNumberedButton((byte) 4),
-					getNumberedButton((byte) 5), getNumberedButton((byte) 6), getNumberedButton((byte) 7),
-					getNumberedButton((byte) 8), getNumberedButton((byte) 9), getNumberedButton((byte) 10),
-					getNumberedButton((byte) 10), getRawAxis((byte) 0), getRawAxis((byte) 1), getRawAxis((byte) 2),
-					getRawAxis((byte) 3), getRawAxis((byte) 4), getRawAxis((byte) 5), getRawAxis((byte) 6) });
-
+		if (data != null) {
+			Object[] temp = new Object[20];
+			temp[0] = Robot.getInstance().modeTime();
+			temp[1] = getPOV();
+			for(byte i = 1; i <= 10; i++) {
+				temp[i + 1] = getNumberedButton(i);
+			}
+			for(byte i = 0; i <= 6; i++) {
+				temp[i + 12] = getRawAxis(i);
+			}
+			data.add(temp);
+		}
 		if (filePath != null && data != null && Robot.getInstance().modeTime() >= 15200) {
 			Serializable writeObj = data;
 			data = null;

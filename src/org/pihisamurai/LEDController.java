@@ -13,6 +13,7 @@ public class LEDController {
 	private SerialPort serial;
 
 	LEDController() {
+		serial = new SerialPort(2400, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 		leftDirection = 0;
 		rightDirection = 0;
 		liftDirection = 0;

@@ -101,11 +101,12 @@ public class Robot extends IterativeRobot {
 	// The function called roughly every twenty milliseconds during disabled mode
 
 	public void autonomousPeriodic() {
-		teleop.run();
+		if (Robot.getInstance().modeTime() <= 15000) {
+			teleop.run();
 
-		gamepad.update();
-		gamepad2.update();
-
+			gamepad.update();
+			gamepad2.update();
+		}
 	}
 
 	// The initial function called on start of teleop
