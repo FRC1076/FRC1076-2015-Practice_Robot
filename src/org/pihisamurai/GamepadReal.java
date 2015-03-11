@@ -54,6 +54,13 @@ public class GamepadReal implements Gamepad {
 	GamepadReal(int port, String save) {
 		this(port);
 		try {
+			try {
+			File file = new File(save);
+			if(file.exists())
+				file.delete();
+			} catch (Exception e){
+				e.printStackTrace();
+			}
 			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream( System.getProperty("user.home") + "/" +  save), "utf-8"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

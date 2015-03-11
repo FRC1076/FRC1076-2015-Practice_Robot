@@ -13,9 +13,7 @@ public class Robot extends IterativeRobot {
 	public Manipulator manipulator;
 
 	public Teleoperated teleop;
-	public Test test;
 	public Autonomous autonomous;
-	public Disabled disabled;
 	
 
 	private static Robot robot;
@@ -55,9 +53,7 @@ public class Robot extends IterativeRobot {
 		drivetrain = new Drivetrain(this);
 		manipulator = new Manipulator(this);
 		teleop = new Teleoperated(this);
-		test = new Test(this);
 		autonomous = new Autonomous(this);
-		disabled = new Disabled(this);
 		
 	//	camGet.start();
 	}
@@ -82,13 +78,11 @@ public class Robot extends IterativeRobot {
 
 	public void disabledInit() {
 		System.out.println("Robot Disabled");
-		disabled.init();
 	}
 
 	// The function called roughly every twenty milliseconds during disabled mode 
 
 	public void disabledPeriodic() {
-		disabled.run();
 	}
 	
 
@@ -121,13 +115,13 @@ public class Robot extends IterativeRobot {
 	// The initial function called on start of teleop
 
 	public void teleopInit() {
+		System.out.println("Teleoperated Mode");
 		modeStart = System.nanoTime();
 
 		gamepad = new GamepadReal(0, SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
 		gamepad2 = new GamepadReal(1, SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
 		
 		
-		System.out.println("Teleoperated Mode");
 		teleop.init();
 	}
 
@@ -145,10 +139,21 @@ public class Robot extends IterativeRobot {
 
 	public void testInit() {
 		System.out.println("Test Mode");
-		test.init();
+		modeStart = System.nanoTime();
+		
+		gamepad = new GamepadReal(0, SmartDashboard.getString("Gamepad Read File") + "-driver.gamepad");
+		gamepad2 = new GamepadReal(1, SmartDashboard.getString("Gamepad Read File") + "-operator.gamepad");
+
+		teleop.init();
+		
 	}
 
 	public void testPeriodic() {
-		test.run();
+		teleop.run();
+		
+
+		gamepad.update();
+		gamepad2.update();
+		
 	}
 }
