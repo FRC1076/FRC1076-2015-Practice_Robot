@@ -11,10 +11,6 @@ public class GamepadReplay implements Gamepad {
 	// For the change of buttons and the D-pad:
 	private boolean[] lastPress;
 	private int lastPOV;
-	
-	private boolean[] currentPress;
-	private double[] currentStick;
-	private int currentPOV;
 
 	// Button constants on the gamepad
 	private static final byte BUTTON_A = 1;
@@ -35,113 +31,58 @@ public class GamepadReplay implements Gamepad {
 	private static final byte AXIS_RIGHT_TRIGGER = 3;
 	private static final byte AXIS_RIGHT_X = 4;
 	private static final byte AXIS_RIGHT_Y = 5;
-	
+
 	private Scanner scanner;
-	
-	private long nextTime;
-	private String[] nextData = null;
-	boolean addedCommand = false;
-	//File format, saved periodicly, each save seperated by newline
-	//miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
-	
-	GamepadReplay(String string) {
-		
+	private ArrayList<String[]> controlList = new ArrayList<String[]>();
+	private int pointer = 0;
+
+	// File format, saved periodicly, each save seperated by newline
+	// miliseconds_into_round POV_ANGLE BUTTON1 BUTTON2 BUTTON3... AXIS0 AXIS1 AXIS2... AXIS5
+
+	GamepadReplay(String fileName) {
+		// checking for file
 		try {
-			scanner = new Scanner(new File(System.getProperty("user.home") + "/" + string));
+			scanner = new Scanner(new File(System.getProperty("user.home") + "/" + fileName));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		lastPress = new boolean[]{false,false,false,false,false,
-				false,false,false,false,false,false};
+
+		lastPress = new boolean[11];
+		for (byte i = 0; i < 11; i++) {
+			lastPress[i] = false;
+		}
 		lastPOV = -1;
-		
-		readFile();
+
+		controlList = readFile();
 	}
-	ArrayList<String> commandChain = new ArrayList<String>();
-	int pos = 0;
-	int temp = 1;
-	private void readFile()
-	{
-		while(!addedCommand)
-		{
-			commandChain.add(scanner.next());
-			addedCommand = true;
+
+	private ArrayList<String[]> readFile() {
+		ArrayList<String[]> data = new ArrayList<String[]>();
+		while (scanner.hasNextLine()) {
+			data.add(scanner.nextLine().split("\\s+"));
 		}
-		
-		if(Robot.getInstance().modeTime() >= nextTime - 1){
-			try {
-			nextTime = Long.parseLong((String)commandChain.get(pos++));
-			currentPOV = Integer.parseInt((String)commandChain.get(pos++));
-			currentPress = new boolean[11];
-			temp = 1;
-			while(temp < 11)
-			{
-				currentPress[temp] = Boolean.parseBoolean((String)commandChain.get(pos));
-				pos++;
-				temp++;
-			}
-			temp = 1;
-			currentStick = new double[6];
-			while(temp < 6)
-			{
-				currentStick[temp] = Double.parseDouble((String)commandChain.get(pos));
-				pos++;
-				temp++;
-			}
-			
-			
-			System.out.println(currentPOV + " && " + Arrays.toString(currentPress) + " && " + Arrays.toString(currentStick) );;
-			
-			}
-			catch(Exception ex) {ex.printStackTrace();}
-			//nextData = scanner.nextLine().split("\\s+");
-			
-			readFile();
-		}
+		return data;
 	}
-		
-	
-	/**
-	private void readFile(){
-		if(nextData == null){
-			//nextData = scanner.nextLine().split("\\s+");
-			nextTime = -1;
+
+	private String[] getCurrentData() {
+		if (Long.parseLong(controlList.get(pointer + 1)[0]) <= Robot.getInstance().modeTime()) {
+			return controlList.get(pointer++);
 		}
-		
-		if(Robot.getInstance().modeTime() >= nextTime && scanner.hasNext()){
-			nextTime = Long.parseLong(scanner.next());
-			currentPOV = Integer.parseInt(scanner.next());
-			currentPress = new boolean[11];
-			for(int i = 1; i < 11; i++)
-				currentPress[i] = Boolean.parseBoolean(scanner.next());
-			currentStick = new double[6];
-			for(int i = 1; i < 6; i++)
-				currentStick[i] = Double.parseDouble(scanner.next());
-			
-			
-			System.out.println(currentPOV + " && " + Arrays.toString(currentPress) + " && " + Arrays.toString(currentStick) );;
-			
-			
-			//nextData = scanner.nextLine().split("\\s+");
-			
-			readFile();
-		}
+		return controlList.get(pointer);
 	}
-	*/
+
 	public int getPOV() {
-		readFile();
-		return currentPOV;
+		return Integer.parseInt(getCurrentData()[1]);
 	}
-	
+
 	private double getRawAxis(int axis) {
-		readFile();
-		return currentStick[axis];
+		assert(axis >= 0 && axis <= 5);
+		return Double.parseDouble(getCurrentData()[axis + 12]);
 	}
 
 	private boolean getNumberedButton(byte button) {
-		readFile();
-		return currentPress[button];
+		assert(button >= 1 && button <= 10);
+		return Boolean.parseBoolean(getCurrentData()[button + 1]);
 	}
 
 	public double getLeftX() {
@@ -199,7 +140,7 @@ public class GamepadReplay implements Gamepad {
 	public boolean getButtonRightBack() {
 		return getNumberedButton(BUTTON_RB);
 	}
-	
+
 	public boolean getButtonLeftStick() {
 		return getNumberedButton(BUTTON_LEFT_STICK_PUSH);
 	}
@@ -211,73 +152,43 @@ public class GamepadReplay implements Gamepad {
 	// Functions to check if the input has changed since last update.
 
 	public boolean ifButtonAChange() {
-		if(getNumberedButton(BUTTON_A) != lastPress[BUTTON_A]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_A) != lastPress[BUTTON_A];
 	}
 
 	public boolean ifButtonBChange() {
-		if(getNumberedButton(BUTTON_B) != lastPress[BUTTON_B]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_B) != lastPress[BUTTON_B];
 	}
 
 	public boolean ifButtonXChange() {
-		if(getNumberedButton(BUTTON_X) != lastPress[BUTTON_X]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_X) != lastPress[BUTTON_X];
 	}
 
 	public boolean ifButtonYChange() {
-		if(getNumberedButton(BUTTON_Y) != lastPress[BUTTON_Y]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_Y) != lastPress[BUTTON_Y];
 	}
 
 	public boolean ifLeftBackChange() {
-		if(getNumberedButton(BUTTON_LB) != lastPress[BUTTON_LB]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_LB) != lastPress[BUTTON_LB];
 	}
 
 	public boolean ifRightBackChange() {
-		if(getNumberedButton(BUTTON_RB) != lastPress[BUTTON_RB]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_RB) != lastPress[BUTTON_RB];
 	}
 
 	public boolean ifButtonBackChange() {
-		if(getNumberedButton(BUTTON_BACK) != lastPress[BUTTON_BACK]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_BACK) != lastPress[BUTTON_BACK];
 	}
 
 	public boolean ifButtonLeftStickChange() {
-		if(getNumberedButton(BUTTON_LEFT_STICK_PUSH) != lastPress[BUTTON_LEFT_STICK_PUSH]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_LEFT_STICK_PUSH) != lastPress[BUTTON_LEFT_STICK_PUSH];
 	}
 
 	public boolean ifButtonRightStickChange() {
-		if(getNumberedButton(BUTTON_RIGHT_STICK_PUSH) != lastPress[BUTTON_RIGHT_STICK_PUSH]) {
-			return true;
-		}
-		return false;
+		return getNumberedButton(BUTTON_RIGHT_STICK_PUSH) != lastPress[BUTTON_RIGHT_STICK_PUSH];
 	}
 
 	public boolean ifPOVChange() {
-		if(this.getPOV() != lastPOV) {
-			return true;
-		}
-		return false;
+		return this.getPOV() != lastPOV;
 	}
 
 	// Updates the array for the gamepad:
